@@ -23,7 +23,7 @@ base (d:_) =
     True    -> d
     False   -> if (head revD) /= '/' 
                   then d
-                  else reverse $ drop 1 revD
+                  else reverse $ tail revD
   where revD = reverse d
 
 handle result =
