@@ -1,0 +1,19 @@
+Name:            Denominate
+Version:         0.1
+License:         BSD3
+License-File:    LICENSE.txt
+Author:          Calvin Smith
+Maintainer:      cs-haskell@protempore.net
+Category:        System
+Stability:       Experimental
+Build-Depends:   base, regex-base, regex-pcre
+Synopsis:        A module of supporting functions for file and directory
+                 renaming and filename normalization, and a main program
+                 that performs bulk renaming of all files and directories
+                 in a given base directory (recursively).
+Exposed-modules: Denominate
+Ghc-Options:     -O2 -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures
+
+Executable:      denominate
+Main-Is:         Main.hs
+Hs-Source-Dirs:  .
