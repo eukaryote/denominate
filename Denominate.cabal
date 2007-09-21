@@ -7,13 +7,16 @@ Maintainer:      cs-haskell@protempore.net
 Category:        System
 Stability:       Experimental
 Build-Depends:   base, regex-base, regex-pcre
-Synopsis:        A module of supporting functions for file and directory
-                 renaming and filename normalization, and a main program
-                 that performs bulk renaming of all files and directories
-                 in a given base directory (recursively).
+Synopsis:        Functions supporting bulk file and directory name 
+                 normalization.
+Description:     Denominate provides a main program for performing bulk 
+                 file and directory renaming, using a built-in filename
+                 converter or user-defined converters. Additionally, it 
+                 consists of a module that exposes some useful functions
+                 related to renaming and name normalization that might be 
+                 otherwise useful.
 Exposed-modules: Denominate
 Ghc-Options:     -O2 -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures
 
 Executable:      denominate
 Main-Is:         Main.hs
-Hs-Source-Dirs:  .
