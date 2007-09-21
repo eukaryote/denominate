@@ -1,5 +1,3 @@
-module Main where
-
 import System.Environment(getArgs, getProgName)
 import System.Exit(exitFailure)
 import Control.Monad(when)
