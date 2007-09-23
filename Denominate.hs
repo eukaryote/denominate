@@ -24,11 +24,11 @@ or may use the pre-defined function that this module defines.
 The standard pre-defined converter determines the new name for a file
 or directory using the following rules:
 
-  1. all letters are converted to lowercase;<br>
+  1. all letters are converted to lowercase;
   2. all non-alphanumeric characters at the beginning of a file or
-     directory name are removed;<br>
+     directory name are removed;
   3. all non-alphanumeric characters at the end of a directory name
-     or the end of a filename (before the extension) are removed;<br>
+     or the end of a filename (before the extension) are removed;
   4. all other blocks of one or more non-alphanumeric characters are
      converted to a single hyphen.
 
