@@ -2,8 +2,8 @@
 
 import Denominate
 import Data.List
+import Data.Char
 import Control.Monad
-import Data.Char(toUpper,toLower,isLetter)
 import Test.QuickCheck
 
 run_all tests = mapM_ (\f -> putStrLn ("FAIL: " ++ show f)) failures
@@ -52,69 +52,70 @@ test_cases = [
 instance Arbitrary FileType where
   arbitrary = oneof $ map return [Directory, File]
 
-rand_path_gen = 
+randPathGen = 
     do numSegments <- choose (0, 8)
-       words <- mapM (\_ -> choose (0, 10) >>= rand_word_gen) [0..numSegments]
+       words <- mapM (\_ -> choose (0, 10) >>= randWordGen) [0..numSegments]
        return $ concat $ intersperse "/" words
 
-rand_word_gen len = mapM (\i -> rand_char_gen) [0..len]
+randWordGen len = mapM (\i -> randCharGen) [0..len]
 
-rand_char_gen = oneof $ map return chars
+randCharGen = oneof $ map return chars
  where chars = letters ++ map toUpper letters ++ punc
        letters = "abcdefghijklmnopqrstuvwxyz"
        punc    = "..............-----_____,?`~!@#$%^&*()=+[]{}|'\"<>?/"
 
-last_slash = last_index_of '/'
-last_period = last_index_of '.'
+lastSlashOf = lastIndexOf '/'
+lastPeriodOf = lastIndexOf '.'
 
-last_path_part path = if n > -1 then drop (n+1) path else path
-  where n = last_slash path
+lastPathPart path = if n > -1 then drop (n+1) path else path
+  where n = lastSlashOf path
 
-last_index_of chr str = last_index_of' str 0 (-1)
+lastIndexOf chr str = lastIndexOf' str 0 (-1)
   where
-    last_index_of' []     i highest = highest
-    last_index_of' (c:cs) i highest =
+    lastIndexOf' []     i highest = highest
+    lastIndexOf' (c:cs) i highest =
       case c == chr of
-        True  -> last_index_of' cs (i+1) i
-        False -> last_index_of' cs (i+1) highest
+        True  -> lastIndexOf' cs (i+1) i
+        False -> lastIndexOf' cs (i+1) highest
 
 convert = normalizeFilename defaultFilenameConverter
 
-has_letter = any isLetter
+hasLetter = any isLetter
 
-has_legal_char = any (\c -> isLetter c || c == '-')
+hasLegalChar = any (\c -> isLetter c || c == '-')
 
-last_dir_part_has_letter path = has_letter $ drop n path
-  where n = last_slash path
+lastDirPartHasLetter path = hasLetter $ drop n path
+  where n = lastSlashOf path
 
-last_part_has_ext path = not $ null (ext filename)
-  where n = last_slash path
+lastPathPartHasExt path = not $ null (ext filename)
+  where n = lastSlashOf path
         filename = drop n path
-        n' = last_period filename
+        n' = lastPeriodOf filename
 
-is_lower c = c >= 'a' && c <= 'z'
+hasInitialDot p = char1 p == "."
+char1 = take 1
 
-filenameNoExt fname = 
+stripExt fname = 
   case n > 0 of
     True   ->  take n fname
     False  ->  fname
-  where n = last_period fname
+  where n = lastPeriodOf fname
 
 ext fname =
   case lastDotIndex < 1 of
     True  ->  ""
     False ->  drop (lastDotIndex + 1) fname
   where
-    lastDotIndex = last_index_of '.' fname
+    lastDotIndex = lastIndexOf '.' fname
 
 -- Only the filename or the very last directory name (everything before
 -- the last slash) should ever change.
 prop_changes_only_last_part :: FileType -> Property
 prop_changes_only_last_part ftype = 
-  forAll rand_path_gen test
+  forAll randPathGen test
   where
     test path = take n path == take n result
-      where n = last_slash path + 1
+      where n = lastSlashOf path + 1
             result = convert (ftype, path)
 
 
@@ -123,15 +124,15 @@ prop_changes_only_last_part ftype =
 -- original path, with the possible exception of an initial dot
 prop_dir_last_part_legal_chars :: Property
 prop_dir_last_part_legal_chars =
-  forAll rand_path_gen f
+  forAll randPathGen f
   where
-    f p = classify (last_dir_part_has_letter p) "last-dir-part-has-letter" $
-            last_dir_part_has_letter p ==> test p
-    test path = let dirResult = last_path_part $ result path
+    f p = classify (lastDirPartHasLetter p) "last-dir-part-has-letter" $
+            lastDirPartHasLetter p ==> test p
+    test path = let dirResult = lastPathPart $ result path
                     initChar = head dirResult
                 in  if not (null dirResult)
-                       then initChar == '.' || initChar == '-' || is_lower initChar &&
-                              all (\c -> c == '-' || is_lower c) (tail dirResult)
+                       then initChar == '.' || initChar == '-' || isLower initChar &&
+                              all (\c -> c == '-' || isLower c) (tail dirResult)
                        else True
     result p = convert (Directory, p)
                 
@@ -140,27 +141,25 @@ prop_dir_last_part_legal_chars =
 -- lowercase letters and hyphens.
 prop_file_last_part_legal_chars :: Property
 prop_file_last_part_legal_chars =
-  forAll rand_path_gen (\p -> has_letter (extractFilename p) ==> test p)
+  forAll randPathGen (\p -> hasLetter (extractFilename p) ==> test p)
   where
     test path =  all (\c -> isLetter c || c == '.' || c == '-') (newFileNoExt path)
     newFileNoExt p = extractFilename $ convert (File, p)
-    extractFilename = filenameNoExt . last_path_part 
+    extractFilename = stripExt . lastPathPart 
 
 -- the extension of a file should only be lowercased, with no other
 -- changes made.
 prop_file_extension_only_lowercased :: Property
 prop_file_extension_only_lowercased =
-  forAll rand_path_gen (\p -> last_part_has_ext p ==> test p)
+  forAll randPathGen (\p -> lastPathPartHasExt p ==> test p)
   where
     test path = f result == map toLower (f path)
       where result = convert (File, path)
-            f = ext . last_path_part
+            f = ext . lastPathPart
 
 prop_file_initial_dot_unchanged :: Property
 prop_file_initial_dot_unchanged =
-  forAll rand_path_gen (\p -> hasInitialDot (last_path_part p) ==> 
-                                hasInitialDot (last_path_part $ res p))
+  forAll randPathGen (\p -> hasInitialDot (lastPathPart p) ==> 
+                                hasInitialDot (lastPathPart $ res p))
   where
-    hasInitialDot p = char1 p == "."
-    char1 = take 1
     res p = convert (File, p)
