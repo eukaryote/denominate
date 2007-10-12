@@ -226,7 +226,7 @@ normalizeFilename :: FilenameConverter -> TypedFilePath -> String
 normalizeFilename fn (fileType, origPath) =
   let (dir, filenameWithExt)   =  dirAndFile origPath
       (filenameNoExt, ext)     =  if fileType == Directory
-                                     then (origPath, "")
+                                     then (filenameWithExt, "")
                                      else fileAndExt filenameWithExt
       newFilenameNoExt = fn (fileType, filenameNoExt)
   in joinFileName dir $ joinFileExt newFilenameNoExt (map toLower ext)
