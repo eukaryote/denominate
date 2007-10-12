@@ -229,15 +229,20 @@ normalizeFilename fn (fileType, origPath) =
                                      then (filenameWithExt, "")
                                      else fileAndExt filenameWithExt
       newFilenameNoExt = fn (fileType, filenameNoExt)
-      result =  joinFileName dir $ joinFileExt newFilenameNoExt (map toLower ext)
+      result =  joinFileName dir $ joinFileExt (if null newFilenameNoExt 
+                                                  then filenameNoExt 
+                                                  else newFilenameNoExt) (map toLower ext)
   in if null result then origPath else result
 
 -- |The default filename converter, which normalizes a filename by
 -- converting letters to lowercase and converting one or more undesirable
 -- characters into a single hyphen (or removing altogether if at the
--- beginning or the end of the name).
+-- beginning or the end of the name). The only exception to these rules
+-- is that an initial dot of a filename is not removed.
 defaultFilenameConverter :: FilenameConverter
-defaultFilenameConverter = convert' Initial . snd
+defaultFilenameConverter f@(_, path) = if isDotFile then ('.':result) else result
+  where result = convert' Initial path
+        isDotFile = not (null path) && head path == '.'
 
 convert' :: State -> String -> String
 convert' _      []      = []
@@ -323,7 +328,7 @@ dirAndFile path =
 -- |Split file path into filename and ext.
 fileAndExt :: FilePath -> (String, String)
 fileAndExt filename =
-  if null dotIndices
+  if null dotIndices || lastDotIndex == 0
     then (filename, "")
     else (take lastDotIndex filename, drop (lastDotIndex+1) filename)
   where
