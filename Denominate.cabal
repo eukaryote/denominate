@@ -16,7 +16,8 @@ Description:     Denominate provides a main program for performing bulk
                  related to renaming and name normalization that might be 
                  otherwise useful.
 Exposed-modules: Denominate
-Ghc-Options:     -O2 -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures
+-- GHC optimization info: -ddump-simpl-stats
+Ghc-Options:     -O -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures
 
 Executable:      denominate
 Main-Is:         Main.hs
