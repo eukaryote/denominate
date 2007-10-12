@@ -229,7 +229,8 @@ normalizeFilename fn (fileType, origPath) =
                                      then (filenameWithExt, "")
                                      else fileAndExt filenameWithExt
       newFilenameNoExt = fn (fileType, filenameNoExt)
-  in joinFileName dir $ joinFileExt newFilenameNoExt (map toLower ext)
+      result =  joinFileName dir $ joinFileExt newFilenameNoExt (map toLower ext)
+  in if null result then origPath else result
 
 -- |The default filename converter, which normalizes a filename by
 -- converting letters to lowercase and converting one or more undesirable
@@ -298,8 +299,9 @@ matches regex c = matchTest regex (c:[])
 joinFileName :: String -> String -> String
 joinFileName dirpath filename =
   case dirpath of
-    "" -> filename
-    _  -> dirpath ++ ('/':filename)
+    ""  -> filename
+    "/" -> dirpath ++ filename
+    _   -> dirpath ++ ('/':filename)
 
 joinFileExt :: String -> String -> String
 joinFileExt filename ext =
@@ -312,10 +314,11 @@ dirAndFile :: FilePath -> (String, String)
 dirAndFile path =
   if null slashIndices
     then ("", path)
-    else (take lastSlashIndex path, drop (lastSlashIndex + 1) path)
+    else (extractDir lastSlashIndex path, drop (lastSlashIndex + 1) path)
   where
     slashIndices = elemIndices '/' path
     lastSlashIndex = last slashIndices
+    extractDir n p = if n == 0 then "/" else take n p
 
 -- |Split file path into filename and ext.
 fileAndExt :: FilePath -> (String, String)
