@@ -240,7 +240,7 @@ normalizeFilename fn (fileType, origPath) =
 -- beginning or the end of the name). The only exception to these rules
 -- is that an initial dot of a filename is not removed.
 defaultFilenameConverter :: FilenameConverter
-defaultFilenameConverter f@(_, path) = if isDotFile then ('.':result) else result
+defaultFilenameConverter (_, path) = if isDotFile then ('.':result) else result
   where result = convert' Initial path
         isDotFile = not (null path) && head path == '.'
 
