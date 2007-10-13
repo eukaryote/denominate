@@ -157,9 +157,32 @@ prop_file_extension_only_lowercased =
       where result = convert (File, path)
             f = ext . lastPathPart
 
+-- a file that begins with a '.' should not have the '.' removed
 prop_file_initial_dot_unchanged :: Property
 prop_file_initial_dot_unchanged =
-  forAll randPathGen (\p -> hasInitialDot (lastPathPart p) ==> 
-                                hasInitialDot (lastPathPart $ res p))
+  forAll randPathGen test
   where
-    res p = convert (File, p)
+    test p =  hasInitialDot (lastPathPart p) ==>  
+                   hasInitialDot (lastPathPart $ convert (File, p))
+
+-- the length of the converted path is never longer than the original path
+prop_path_never_longer_after_convert :: FileType -> Property
+prop_path_never_longer_after_convert ft =
+  forAll randPathGen (\p -> length (convert (ft, p)) <= length p)
+
+-- there should always be the same number of letters in the path
+-- before and after, because letters are never removed.
+prop_numLettersBeforeAndAfterAreEqual :: FileType -> Property
+prop_numLettersBeforeAndAfterAreEqual ft =
+  forAll randPathGen (\p -> f (convert (ft, p)) == f p)
+  where
+    f p = length $ filter isLetter p
+
+-- the letters in the original should be equal to, and in the
+-- same order as, the letters in the converted path, except
+-- for case differences.
+prop_lettersBeforeAndAfterAreEqual :: FileType -> Property
+prop_lettersBeforeAndAfterAreEqual ft =
+  forAll randPathGen (\p -> f (convert (ft, p)) == f p)
+  where
+    f p = map toLower $ filter isLetter p
