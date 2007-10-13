@@ -1,51 +1,10 @@
 {- OPTIONS_GHC -fallow-overlapping-instances -}
 
 import Denominate
-import Data.List
+import Data.List(intersperse)
 import Data.Char
-import Control.Monad
 import Test.QuickCheck
 
-run_all tests = mapM_ (\f -> putStrLn ("FAIL: " ++ show f)) failures
-  where failures = filter (\(_, (r, b)) -> not b) $ test_all test_cases
-
-test_all = map (\f -> (f, test_single f))
-
-test_single (in_file, expected) = (result, result == expected)
-  where result = normalizeFilename defaultFilenameConverter in_file
-
-
--- some known files to be tested manually using above run_all func.
-test_cases = [
-  ((File, "."),              "."),
-  ((Directory, "."),         "."),
-  ((File, "a"),              "a"),
-  ((Directory, "a"),         "a"),
-  ((File, "A"),              "a"),
-  ((Directory, "A"),         "a"),
-  ((File, "_a.TXT"),         "a.txt"),
-  ((Directory, "_a.DIR"),    "a-dir"),
-  ((File, "a-.b"),           "a.b"),
-  ((Directory, "a-.b"),      "a-b"),
-  ((File, "TEST"),           "test"),
-  ((Directory, "TEST"),      "test"),
-  ((File, "_%$.a.bar.out"),  "a-bar.out"),
-  ((Directory, "_%$.a.bar.out"), "a-bar-out"),
-  ((File, "hello.txt"),      "hello.txt"),
-  ((Directory, "hello.txt"), "hello-txt"),
-  ((File, "./T*EST.C"),      "./t-est.c"),
-  ((Directory, "./T*EST.C"), "./t-est-c"),
-  ((File, "T*&#$(EST.Out"),  "t-est.out"),
-  ((Directory, "T*&#EST.Out"), "t-est-out"),
-  ((File, "../foo.BAR"),     "../foo.bar"),
-  ((Directory, "../Foo-*baR"), "../foo-bar"),
-  ((File, "Dir/_test_file.bar.TXT"), "Dir/test-file-bar.txt"),
-  ((Directory, "Dir/_test_dIR"), "Dir/test-dir"), -- only last part is changed
-  ((File, "~!#dir/_test__file._"), "~!#dir/test-file._"),
-  ((Directory, "@!*&%$dir/_Test_DIR._"), "@!*&%$dir/test-dir"),
-  ((File, "../Foo/BAR/asDF_.txt"), "../Foo/BAR/asdf.txt"),
-  ((Directory, "../Foo/BAR/asDF_"), "../Foo/BAR/asdf")
- ]
 
 instance Arbitrary FileType where
   arbitrary = oneof $ map return [Directory, File]
@@ -112,6 +71,8 @@ ext fname =
   where
     lastDotIndex = lastIndexOf '.' fname
 
+-- PROPERTIES:
+
 -- Only the filename or the very last directory name (everything before
 -- the last slash) should ever change.
 prop_changesOnlyLastPart :: FileType -> Property
@@ -130,8 +91,7 @@ prop_dirLastPartLegalChars :: Property
 prop_dirLastPartLegalChars =
   forAll randPathGen f
   where
-    f p = classify (lastDirPartHasLetter p) "last-dir-part-has-letter" $
-            lastDirPartHasLetter p ==> test p
+    f p = lastDirPartHasLetter p ==> test p
     test path = let dirResult = lastPathPart $ result path
                     initChar = head dirResult
                 in  if not (null dirResult)
