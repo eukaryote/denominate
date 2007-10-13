@@ -19,8 +19,6 @@ test_single (in_file, expected) = (result, result == expected)
 test_cases = [
   ((File, "."),              "."),
   ((Directory, "."),         "."),
-  ((File, ".bashRC"),        ".bashrc"),
-  ((Directory, ".BASHRC"),   ".bashrc"),
   ((File, "a"),              "a"),
   ((Directory, "a"),         "a"),
   ((File, "A"),              "a"),
@@ -51,6 +49,7 @@ test_cases = [
 
 instance Arbitrary FileType where
   arbitrary = oneof $ map return [Directory, File]
+  coarbitrary = variant . fromEnum
 
 randPathGen = 
     do numSegments <- choose (0, 8)
@@ -94,6 +93,11 @@ lastPathPartHasExt path = not $ null (ext filename)
 
 hasInitialDot p = char1 p == "."
 char1 = take 1
+isInitialGarbageChar c = not (isLetter c || c == '.')
+hasInitialGarbageChar s | null s    = False
+                        | otherwise = isInitialGarbageChar $ head s
+hasTrailingGarbageChar s | null s    = False
+                         | otherwise = not $ isLetter $ last s
 
 stripExt fname = 
   case n > 0 of
@@ -110,8 +114,8 @@ ext fname =
 
 -- Only the filename or the very last directory name (everything before
 -- the last slash) should ever change.
-prop_changes_only_last_part :: FileType -> Property
-prop_changes_only_last_part ftype = 
+prop_changesOnlyLastPart :: FileType -> Property
+prop_changesOnlyLastPart ftype = 
   forAll randPathGen test
   where
     test path = take n path == take n result
@@ -122,8 +126,8 @@ prop_changes_only_last_part ftype =
 -- every char in last part of a directory will be either a lowercase letter
 -- or a hyphen if there is at least one letter in the last part of the 
 -- original path, with the possible exception of an initial dot
-prop_dir_last_part_legal_chars :: Property
-prop_dir_last_part_legal_chars =
+prop_dirLastPartLegalChars :: Property
+prop_dirLastPartLegalChars =
   forAll randPathGen f
   where
     f p = classify (lastDirPartHasLetter p) "last-dir-part-has-letter" $
@@ -139,8 +143,8 @@ prop_dir_last_part_legal_chars =
 -- if the original filename without extension has at least one letter,
 -- then the new filename without extension should consist of nothing but
 -- lowercase letters and hyphens.
-prop_file_last_part_legal_chars :: Property
-prop_file_last_part_legal_chars =
+prop_fileLastPartLegalChars :: Property
+prop_fileLastPartLegalChars =
   forAll randPathGen (\p -> hasLetter (extractFilename p) ==> test p)
   where
     test path =  all (\c -> isLetter c || c == '.' || c == '-') (newFileNoExt path)
@@ -149,8 +153,8 @@ prop_file_last_part_legal_chars =
 
 -- the extension of a file should only be lowercased, with no other
 -- changes made.
-prop_file_extension_only_lowercased :: Property
-prop_file_extension_only_lowercased =
+prop_fileExtOnlyLowercased :: Property
+prop_fileExtOnlyLowercased =
   forAll randPathGen (\p -> lastPathPartHasExt p ==> test p)
   where
     test path = f result == map toLower (f path)
@@ -158,16 +162,16 @@ prop_file_extension_only_lowercased =
             f = ext . lastPathPart
 
 -- a file that begins with a '.' should not have the '.' removed
-prop_file_initial_dot_unchanged :: Property
-prop_file_initial_dot_unchanged =
+prop_fileInitialDotUnchanged :: Property
+prop_fileInitialDotUnchanged =
   forAll randPathGen test
   where
     test p =  hasInitialDot (lastPathPart p) ==>  
                    hasInitialDot (lastPathPart $ convert (File, p))
 
 -- the length of the converted path is never longer than the original path
-prop_path_never_longer_after_convert :: FileType -> Property
-prop_path_never_longer_after_convert ft =
+prop_pathNeverLongerAfterConvert :: FileType -> Property
+prop_pathNeverLongerAfterConvert ft =
   forAll randPathGen (\p -> length (convert (ft, p)) <= length p)
 
 -- there should always be the same number of letters in the path
@@ -186,3 +190,52 @@ prop_lettersBeforeAndAfterAreEqual ft =
   forAll randPathGen (\p -> f (convert (ft, p)) == f p)
   where
     f p = map toLower $ filter isLetter p
+
+-- if the file has at least one letter in the filename without extension,
+-- then the first character of the converted filename will be a non-garbage
+-- character (letter or '.').
+prop_initialFileGarbageIsRemoved :: Property
+prop_initialFileGarbageIsRemoved =
+  forAll randPathGen test
+  where
+    test p = hasLetter origLastPathPartNoExt ==> 
+               not (hasInitialGarbageChar newLastPathPartNoExt)
+      where
+        origLastPathPartNoExt = stripExt $ lastPathPart p
+        newLastPathPartNoExt  = stripExt $ lastPathPart $ convert (File, p)
+
+-- likewise for directory, but we don't consider extensions at all
+prop_initialDirGarbageIsRemoved :: Property
+prop_initialDirGarbageIsRemoved =
+  forAll randPathGen test
+  where
+    test p = hasLetter origLastPathPart ==>
+               not (hasInitialGarbageChar newLastPathPart)
+      where
+        origLastPathPart = lastPathPart p
+        newLastPathPart  = lastPathPart $ convert (Directory, p)
+
+
+-- if the file has at least one letter in the filename without extension,
+-- then the last character of the converted filename will be a non-garbage
+-- character (letter or '.').
+prop_trailingFileGarbageIsRemoved :: Property
+prop_trailingFileGarbageIsRemoved =
+  forAll randPathGen test
+  where 
+    test p = hasLetter origLastPathPartNoExt ==>
+               not (hasTrailingGarbageChar newLastPathPartNoExt)
+      where
+        origLastPathPartNoExt = stripExt $ lastPathPart p
+        newLastPathPartNoExt  = stripExt $ lastPathPart $ convert (File, p)
+
+-- likewise for directory, but we don't consider extensions at all
+prop_trailingDirGarbageIsRemoved :: Property
+prop_trailingDirGarbageIsRemoved =
+  forAll randPathGen test
+  where 
+    test p = hasLetter origLastPathPart ==>
+               not (hasTrailingGarbageChar newLastPathPart)
+      where
+        origLastPathPart = lastPathPart p
+        newLastPathPart  = lastPathPart $ convert (Directory, p)
