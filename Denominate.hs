@@ -66,8 +66,8 @@ data FileType = Directory | File
 -- |Represents the result of a rename attempt, which either fails or
 -- succeeds. In both cases, the typed file path is that of the file
 -- for which a rename attempt was made. Upon failure, the string
--- parameter contains information about the error (may have been
--- os-level error or user errror); upon success, the string parameter
+-- parameter contains information about the error (may have been an
+-- os-level error or user error); upon success, the string parameter
 -- is the name to which the file was renamed (which includes the case
 -- that no change was performed because old and new names were equal).
 data RenameResult = Failure TypedFilePath String |
