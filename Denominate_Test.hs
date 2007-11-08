@@ -1,69 +1,91 @@
-{- OPTIONS_GHC -fallow-overlapping-instances -}
+module Main where
 
 import Denominate
 import Data.List(intersperse)
 import Data.Char
 import Test.QuickCheck
 
-
 instance Arbitrary FileType where
   arbitrary = oneof $ map return [Directory, File]
   coarbitrary = variant . fromEnum
 
+randPathGen :: Gen [Char]
 randPathGen = 
-    do numSegments <- choose (0, 8)
-       words <- mapM (\_ -> choose (0, 10) >>= randWordGen) [0..numSegments]
+    do numSegments <- choose (0 :: Int, 8 :: Int)
+       words <- mapM (\_ -> choose (0 :: Int, 10 :: Int) >>= randWordGen) [0..numSegments]
        return $ concat $ intersperse "/" words
 
-randWordGen len = mapM (\i -> randCharGen) [0..len]
-
+randWordGen :: Int -> Gen [Char]
+randWordGen len = mapM (\_ -> randCharGen) [0..len]
+randCharGen :: Gen Char
 randCharGen = oneof $ map return chars
  where chars = letters ++ map toUpper letters ++ punc
        letters = "abcdefghijklmnopqrstuvwxyz"
-       punc    = "..............-----_____,?`~!@#$%^&*()=+[]{}|'\"<>?/"
+       punc    = "..............................-----_____,?`~!@#$%^&*()=+[]{}|'\"<>?/"
 
+lastSlashOf :: String -> Int
 lastSlashOf = lastIndexOf '/'
+
+lastPeriodOf :: String -> Int
 lastPeriodOf = lastIndexOf '.'
 
+lastPathPart :: String -> [Char]
 lastPathPart path = if n > -1 then drop (n+1) path else path
   where n = lastSlashOf path
 
+lastIndexOf :: Char -> String -> Int
 lastIndexOf chr str = lastIndexOf' str 0 (-1)
   where
-    lastIndexOf' []     i highest = highest
+    lastIndexOf' []     _ highest = highest
     lastIndexOf' (c:cs) i highest =
       case c == chr of
         True  -> lastIndexOf' cs (i+1) i
         False -> lastIndexOf' cs (i+1) highest
 
+convert :: TypedFilePath -> FilePath
 convert = normalizeFilename defaultFilenameConverter
 
+hasLetter :: [Char] -> Bool
 hasLetter = any isLetter
 
+hasLegalChar :: [Char] -> Bool
 hasLegalChar = any (\c -> isLetter c || c == '-')
 
+lastDirPartHasLetter :: String -> Bool
 lastDirPartHasLetter path = hasLetter $ drop n path
   where n = lastSlashOf path
 
+lastPathPartHasExt :: String -> Bool
 lastPathPartHasExt path = not $ null (ext filename)
-  where n = lastSlashOf path
-        filename = drop n path
-        n' = lastPeriodOf filename
+  where 
+    n = lastSlashOf path
+    filename = drop n path
 
+hasInitialDot :: [Char] -> Bool
 hasInitialDot p = char1 p == "."
+
+char1 :: String -> String
 char1 = take 1
+
+isInitialGarbageChar :: Char -> Bool
 isInitialGarbageChar c = not (isLetter c || c == '.')
+
+hasInitialGarbageChar :: [Char] -> Bool
 hasInitialGarbageChar s | null s    = False
                         | otherwise = isInitialGarbageChar $ head s
+
+hasTrailingGarbageChar :: [Char] -> Bool
 hasTrailingGarbageChar s | null s    = False
                          | otherwise = not $ isLetter $ last s
 
+stripExt :: String -> [Char]
 stripExt fname = 
   case n > 0 of
     True   ->  take n fname
     False  ->  fname
   where n = lastPeriodOf fname
 
+ext :: String -> [Char]
 ext fname =
   case lastDotIndex < 1 of
     True  ->  ""
@@ -92,12 +114,13 @@ prop_dirLastPartLegalChars =
   forAll randPathGen f
   where
     f p = lastDirPartHasLetter p ==> test p
-    test path = let dirResult = lastPathPart $ result path
-                    initChar = head dirResult
-                in  if not (null dirResult)
-                       then initChar == '.' || initChar == '-' || isLower initChar &&
-                              all (\c -> c == '-' || isLower c) (tail dirResult)
-                       else True
+    test path = 
+      let dirResult = lastPathPart $ result path
+          initChar = head dirResult
+      in  if not (null dirResult)
+             then initChar == '.' || initChar == '-' ||(isLower initChar) &&
+                    all (\c -> c == '-' || isLower c) (tail dirResult)
+             else True
     result p = convert (Directory, p)
                 
 -- if the original filename without extension has at least one letter,

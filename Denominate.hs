@@ -47,15 +47,12 @@ module Denominate (FileType(Directory, File),
 where
 
 import System.Directory
+import System.FilePath
 import System.IO
 import Data.Char
 import Data.List
-import Text.Regex.Base(defaultCompOpt, defaultExecOpt, matchTest)
-import Text.Regex.PCRE.String
 import Control.Monad
 import Control.Exception
-import Foreign(unsafePerformIO)
-
 
 -- |Represents the type of a file or directory. These are exhaustive,
 -- as for purposes of this module, we consider everything that isn't
@@ -183,6 +180,7 @@ prepend []     out = out
 prepend (x:xs) out = x ++ prepend xs out
 
 -- |Determine whether the given FileType is Directory.
+isDirectoryFileType :: FileType -> Bool
 isDirectoryFileType Directory = True
 isDirectoryFileType _         = False
 
@@ -272,65 +270,26 @@ data State =   Initial     -- initial state, until enter normal
 -- hyphen when we transition from hyphen to normal.
 transition :: State -> Char -> (Maybe Char, State)
 transition currState c
-  | isNormalChar c = (Just c, NormalBlock)
-  | otherwise      = (Nothing, nonNormalState)
+  | isAlphaNum c = (Just c, NormalBlock)
+  | otherwise    = (Nothing, nonNormalState)
   where nonNormalState = case currState of
                            Initial   -> Initial
                            _         -> HyphenBlock
 
-normalCharRegex = mkRegex "[[:alnum:]]"
-isNormalChar = matches normalCharRegex
-
-mkRegex :: String -> Regex
-mkRegex s = unsafePerformIO (_mkRegex s)
-
-_mkRegex :: String -> IO Regex
-_mkRegex pattern =
-  do res <- compile defaultCompOpt defaultExecOpt pattern
-     case res of
-       (Left err)    -> error ("Couldn't compile pattern '" ++ pattern ++
-                                 "': " ++ show err)
-       (Right regex) -> return regex
-
-matches :: Regex -> Char -> Bool
-matches regex c = matchTest regex (c:[])
-
--- The following five functions are workarounds for the
--- 3 functions used in the filepath package, at System.FilePath,
--- which is not currently working with GHC 6.6.1 and the Cabal
--- I'm using (for some unknown reason).
--- Thus, these functions don't work on Windows.
--- TODO: switch back to using System.FilePath when it's working again.
 joinFileName :: String -> String -> String
-joinFileName dirpath filename =
-  case dirpath of
-    ""  -> filename
-    "/" -> dirpath ++ filename
-    _   -> dirpath ++ ('/':filename)
+joinFileName dirpath filename = joinPath [dirpath, filename]
 
 joinFileExt :: String -> String -> String
-joinFileExt filename ext =
-  case ext of
-    ""        -> filename
-    _         -> filename ++ ('.':ext)
+joinFileExt filename ext = addExtension filename ext
 
 -- |Split path into directory part (without slash) and file part.
 dirAndFile :: FilePath -> (String, String)
-dirAndFile path =
-  if null slashIndices
-    then ("", path)
-    else (extractDir lastSlashIndex path, drop (lastSlashIndex + 1) path)
-  where
-    slashIndices = elemIndices '/' path
-    lastSlashIndex = last slashIndices
-    extractDir n p = if n == 0 then "/" else take n p
+dirAndFile path = splitFileName path
 
--- |Split file path into filename and ext.
+-- |Split file path into filename and ext. If 
 fileAndExt :: FilePath -> (String, String)
-fileAndExt filename =
-  if null dotIndices || lastDotIndex == 0
-    then (filename, "")
-    else (take lastDotIndex filename, drop (lastDotIndex+1) filename)
-  where
-    dotIndices = elemIndices '.' filename
-    lastDotIndex = last dotIndices
+fileAndExt filename = 
+  case splitExtension filename of
+    ([],   ext) -> (ext, [])
+    (file, ext) -> (file, ext)
+
