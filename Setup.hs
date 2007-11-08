@@ -5,9 +5,9 @@ import System.Exit
 import Control.Monad
 import System.Process
 
+main :: IO ()
+main = defaultMainWithHooks (defaultUserHooks { runTests = test })
 
-main = defaultMainWithHooks defaultUserHooks { runTests = test }
-
-test :: Args -> Bool -> PackageDescription -> LocalBuildInfo -> IO ExitCode
-test _ _ _ _ = waitForProcess =<< runCommand commandStr
+test :: Args -> Bool -> PackageDescription -> LocalBuildInfo -> IO ()
+test _ _ _ _ = runCommand commandStr >>= waitForProcess >> return ()
   where commandStr = "./quickcheck +names Denominate_Test.hs"
