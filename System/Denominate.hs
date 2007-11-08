@@ -38,7 +38,7 @@ or directory using the following rules:
 See the documentation of the exported functions for more information.
 -}
 
-module Denominate (FileType(Directory, File),
+module System.Denominate (FileType(Directory, File),
                    RenameResult(Success, Failure),
                     TypedFilePath, FilenameConverter,
                     normalizeFilename, allFilepaths,

@@ -1,6 +1,6 @@
 module Main where
 
-import Denominate
+import System.Denominate
 import Data.List(intersperse)
 import Data.Char
 import Test.QuickCheck

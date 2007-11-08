@@ -1,7 +1,7 @@
 import System.Environment(getArgs, getProgName)
 import System.Exit(exitFailure)
 import Control.Monad(when)
-import Denominate
+import System.Denominate
 
 usage = getProgName >>= \name ->
           return ("Usage: " ++ name ++ " base_directory") >>=
