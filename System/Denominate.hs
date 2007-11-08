@@ -7,7 +7,7 @@ License     :  BSD3, see LICENSE.txt
 
 Maintainer  :  Calvin Smith <cs-haskell@protempore.net>
 Stability   :  Experimental
-Portability :  posix
+Portability :  portable
 
 Functions to assist in renaming of directories and files into a
 standard, normalized format.
