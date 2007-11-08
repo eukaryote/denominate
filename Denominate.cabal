@@ -26,7 +26,7 @@ library
   if flag(small_base)
     build-depends: base >= 3, directory, filepath
   else
-    build-depends: base < 3, directory, filepath
+    build-depends: base < 3, filepath
   ghc-options:     -O -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
 
 executable denominate
@@ -34,6 +34,6 @@ executable denominate
   if flag(small_base)
     build-depends: base >= 3, directory, filepath
   else
-    build-depends: base < 3, directory, filepath
+    build-depends: base < 3, filepath
   ghc-options:     -O -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
 
