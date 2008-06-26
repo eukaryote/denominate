@@ -4,7 +4,7 @@ all: haddock
 clean:
 	runhaskell Setup.hs clean
 
-configure: Setup.hs Denominate.cabal *.hs
+configure: Setup.hs denominate.cabal *.hs
 	runhaskell Setup.hs configure --user --prefix=${HOME} \
           --haddock-args="--source-base=http://protempore.net/denominate/ \
           --source-module=http://protempore.net/denominate/%M.hs \
