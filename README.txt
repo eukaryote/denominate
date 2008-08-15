@@ -78,9 +78,9 @@ Note the following:
 
 HISTORY
 
- * Aug. 15, 2008: version 0.5; updated tests to use QuickCheck2 (no longer works with QuickCheck1), added README.txt, uploaded to Hackage.
+ * Aug. 15, 2008: version 0.4.2; updated tests to use QuickCheck2 (no longer works with QuickCheck1), added README.txt
 
- * Nov. 07, 2007: version 0.4.1; changed exposed module from Denominate to System.Denominate
+ * Nov. 07, 2007: version 0.4.1; changed exposed module from Denominate to System.Denominate (uploaded to hackage)
 
  * Nov. 07, 2007: version 0.4; includes support for GHC 6.8 (in addition to 6.6), requires Cabal >= 1.2
 
