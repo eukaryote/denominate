@@ -19,7 +19,9 @@ stability:          Experimental
 homepage:           http://protempore.net/denominate/
 build-type:         Simple
 cabal-version:      >= 1.2
+tested-with:        GHC==6.6.1 GHC==6.8.2
 extra-source-files: quickcheck Makefile
+extra-tmp-files:    hugsin
 
 flag small_base
   description:      Choose the new smaller, split-up base package.
