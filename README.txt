@@ -43,9 +43,15 @@ $HOME/Papers/to_read/
 $HOME/Papers/to_read/_A_MONAD_TUTORIAL__.PDF
 $HOME/Papers/to_read/.CONFIG
 $HOME/Papers/to_read/haskell-notes.txt
+$HOME/Papers/to_read/_HASKELL_NOTES.txt
 $HOME/Papers/to_read/low\ priority/
 $HOME/Papers/to_read/low\ priority/Func-Prog-Notes##1.pdf
 $HOME/Papers/to_read/low\ priority/Func-Prog-Notes##2.pdf
+
+Execution:
+
+$ denominate $HOME/Papers
+WARN: File already exists with new name. [Papers/to_read/_HASKELL_NOTES.txt]
 
 Final state after converting:
 
@@ -55,12 +61,14 @@ $HOME/Papers/to-read/
 $HOME/Papers/to-read/a-monad-tutorial.pdf.PDF
 $HOME/Papers/to-read/.config
 $HOME/Papers/to-read/haskell-notes.txt
+$HOME/Papers/to_read/_HASKELL_NOTES.txt
 $HOME/Papers/to-read/low-priority/
 $HOME/Papers/to-read/low-priority/func-prog-notes-1.pdf
 $HOME/Papers/to-read/low-priority/func-prog-notes-2.pdf
 
 Note the following:
 
+ * The WARN line indicates that _HASKELL_NOTES.txt was not renamed because there was already a file in that directory with the desired name.
  * The name of the root directory was not changed.
  * File extensions are lowercased (HTML -> html) as well as the filename without the extension.
  * Initial and trailing non-alphanumerics are eliminated altogether (_A_MONAD_TUTORIAL__ -> a-monad-tutorial).
