@@ -1,14 +1,14 @@
 name:               denominate
-version:            0.5
+version:            0.4.2
 synopsis:           Functions supporting bulk file and directory name
                     normalization.
-description:        Denominate provides a main program for performing bulk
-                    file and directory renaming, using a built-in filename
-                    converter or user-defined converters.
+description:        Denominate is a simple program and an associated library
+                    supporting bulk file and directory name normalization.
                     .
-                    Additionally, it provides a module that exposes some
-                    functions related to renaming and name normalization
-                    that might be otherwise useful.
+                    If you’ve ever spent a long time changing filenames to
+                    get rid of whitespace or convert periods and underscores
+                    to hyphens, you know why it exists.
+
 license:            BSD3
 license-file:       LICENSE.txt
 category:           System
@@ -41,3 +41,4 @@ executable denominate
   else
     build-depends:  base < 3, filepath
   ghc-options:      -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
+
