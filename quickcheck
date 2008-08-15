@@ -41,7 +41,7 @@ process opts file =
 	                       [(if namesOpt=="+names" then 
 			           "putStr \""++p++": \" >> "
 				 else "") ++
-				"Test.QuickCheck.check (Config 500 5000 (configSize defaultConfig) (configEvery defaultConfig)) "++p | p<-names])
+				"Test.QuickCheck.quickCheckWith 500 5000 100 "++p | p<-names])
 	            system ("ghci -v0 "++options opts'++" <hugsin")
 	            return ()
 

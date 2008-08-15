@@ -7,7 +7,6 @@ import Test.QuickCheck
 
 instance Arbitrary FileType where
   arbitrary = oneof $ map return [Directory, File]
-  coarbitrary = variant . fromEnum
 
 randPathGen :: Gen [Char]
 randPathGen = 
