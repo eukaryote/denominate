@@ -1,14 +1,11 @@
 
-all: haddock
+all: build 
 
 clean:
 	runhaskell Setup.hs clean
 
 configure: Setup.hs denominate.cabal *.hs
-	runhaskell Setup.hs configure --user --prefix=${HOME} \
-          --haddock-args="--source-base=http://protempore.net/denominate/ \
-          --source-module=http://protempore.net/denominate/%M.hs \
-          --read-interface=http://www.haskell.org/ghc/docs/latest/html/libraries/base,/usr/share/doc/ghc-6.6.1/html/libraries/base/base.haddock"
+	runhaskell Setup.hs configure --user --prefix=${HOME}
 
 build: configure
 	runhaskell Setup.hs build
@@ -20,3 +17,4 @@ haddock: configure build
 
 install:  configure build
 	runhaskell Setup.hs install
+
