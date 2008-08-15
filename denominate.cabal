@@ -5,7 +5,7 @@ synopsis:           Functions supporting bulk file and directory name
 description:        Denominate is a simple program and an associated library
                     supporting bulk file and directory name normalization.
                     .
-                    If you’ve ever spent a long time changing filenames to
+                    If you've ever spent a long time changing filenames to
                     get rid of whitespace or convert periods and underscores
                     to hyphens, you know why it exists.
 
