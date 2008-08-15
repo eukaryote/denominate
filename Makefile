@@ -7,7 +7,7 @@ clean:
 configure: Setup.hs denominate.cabal *.hs
 	runhaskell Setup.hs configure --user --prefix=${HOME} \
 		--docdir=dist/doc \
-	    --haddock-options="-v \
+		--haddock-options="-v \
 		--source-module=http://protempore.net/denominate/doc/src/%M.hs"
 
 build: configure
