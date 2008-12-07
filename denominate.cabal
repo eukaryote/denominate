@@ -1,5 +1,5 @@
 name:               denominate
-version:            0.4.2
+version:            0.5.0
 synopsis:           Functions supporting bulk file and directory name
                     normalization.
 description:        Denominate is a simple program and an associated library
@@ -19,8 +19,8 @@ stability:          Experimental
 homepage:           http://protempore.net/denominate/
 build-type:         Simple
 cabal-version:      >= 1.2
-tested-with:        GHC==6.6.1 GHC==6.8.2
-extra-source-files: quickcheck Makefile
+tested-with:        GHC==6.6.1 GHC==6.8.2 GHC==6.10.1
+extra-source-files: TestRunner.hs Makefile
 extra-tmp-files:    hugsin
 
 flag small_base
@@ -32,7 +32,7 @@ library
     build-depends:  base >= 3.0 && < 4.0, directory, filepath
   else
     build-depends:  base < 3, filepath
-  ghc-options:      -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
+  ghc-options:      -Wall -O2 -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
 
 executable denominate
   main-is:          Main.hs
@@ -40,5 +40,5 @@ executable denominate
     build-depends:  base >= 3.0 && < 4.0, directory, filepath
   else
     build-depends:  base < 3, filepath
-  ghc-options:      -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
+  ghc-options:      -Wall -O2 -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
 
