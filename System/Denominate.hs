@@ -48,7 +48,7 @@ where
 
 import System.Directory
 import System.FilePath
-import System.IO
+import System.IO()
 import Data.Char
 import Data.List
 import Control.Monad
@@ -71,7 +71,7 @@ data RenameResult = Failure TypedFilePath String |
                     Success TypedFilePath String
   deriving (Eq, Show)
 
--- |Represents a filepath together with the type of file to which 
+-- |Represents a filepath together with the type of file to which
 -- the path refers.
 type TypedFilePath = (FileType, FilePath)
 
@@ -114,7 +114,7 @@ rename convFunc f@(_, oldPath) =
 -- the failure message gives more information.
 doRenameSafe :: TypedFilePath -> FilePath -> IO RenameResult
 doRenameSafe f newPath =
-  handle (\exc -> return (Failure f ("ERROR: " ++ show exc)))
+  handle ((\exc -> return (Failure f ("ERROR: " ++ show exc))) :: SomeException -> IO RenameResult)
          (doRename f newPath >> (return (Success f newPath)))
   where
     doRename :: TypedFilePath -> FilePath -> IO()
@@ -227,8 +227,8 @@ normalizeFilename fn (fileType, origPath) =
                                      then (filenameWithExt, "")
                                      else fileAndExt filenameWithExt
       newFilenameNoExt = fn (fileType, filenameNoExt)
-      result =  joinFileName dir $ joinFileExt (if null newFilenameNoExt 
-                                                  then filenameNoExt 
+      result =  joinFileName dir $ joinFileExt (if null newFilenameNoExt
+                                                  then filenameNoExt
                                                   else newFilenameNoExt) (map toLower ext)
   in if null result then origPath else result
 
@@ -286,9 +286,9 @@ joinFileExt filename ext = addExtension filename ext
 dirAndFile :: FilePath -> (String, String)
 dirAndFile path = splitFileName path
 
--- |Split file path into filename and ext. If 
+-- |Split file path into filename and ext. If
 fileAndExt :: FilePath -> (String, String)
-fileAndExt filename = 
+fileAndExt filename =
   case splitExtension filename of
     ([],   ext) -> (ext, [])
     (file, ext) -> (file, ext)

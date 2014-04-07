@@ -29,7 +29,7 @@ flag small_base
 library
   exposed-modules: System.Denominate
   if flag(small_base)
-    build-depends:  base >= 3.0 && < 4.0, directory, filepath
+    build-depends:  base >= 3.0 && < 5.0, directory, filepath
   else
     build-depends:  base < 3, filepath
   ghc-options:      -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
@@ -37,7 +37,7 @@ library
 executable denominate
   main-is:          Main.hs
   if flag(small_base)
-    build-depends:  base >= 3.0 && < 4.0, directory, filepath
+    build-depends:  base >= 3.0 && < 5.0, directory, filepath
   else
     build-depends:  base < 3, filepath
   ghc-options:      -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
