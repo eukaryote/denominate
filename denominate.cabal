@@ -35,4 +35,13 @@ executable denominate
 test-suite denominate_test
   type: exitcode-stdio-1.0
   main-is: TestMain.hs
-  build-depends:  base >= 3.0 && < 5.0, directory, filepath, test-framework, test-framework-quickcheck2, test-framework-th, QuickCheck
+  build-depends:
+    base >= 3.0 && < 5.0,
+    directory,
+    filepath,
+    test-framework,
+    test-framework-quickcheck2,
+    test-framework-hunit,
+    test-framework-th,
+    HUnit,
+    QuickCheck

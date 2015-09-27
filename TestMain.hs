@@ -7,6 +7,7 @@ import Test.Framework.Providers.QuickCheck2
 import Test.QuickCheck.Arbitrary (Arbitrary)
 import Test.QuickCheck.Property (forAll, Property, (==>))
 import Test.QuickCheck (arbitrary, oneof, choose, Gen)
+import Test.HUnit
 
 import Data.List(intersperse)
 import Data.Char
@@ -233,3 +234,12 @@ prop_trailingDirGarbageIsRemoved =
       where
         origLastPathPart = lastPathPart p
         newLastPathPart  = lastPathPart $ convert (Directory, p)
+
+
+
+test1 = TestCase (assertEqual "for (foo 3)," (1,2) (foo 3))
+
+test_dirAndFile_currentDir =
+  TestCase (assertEqual "for dirAndFile \"./test\","
+                        ("", "test")
+                         dirAndFile "./test")
