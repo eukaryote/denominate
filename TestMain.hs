@@ -3,13 +3,15 @@ module Main where
 
 import Test.Framework.TH
 import Test.Framework.Providers.QuickCheck2
-import Test.QuickCheck.Arbitrary (Arbitrary)
-import Test.QuickCheck.Property
 
-import System.Denominate
+import Test.QuickCheck.Arbitrary (Arbitrary)
+import Test.QuickCheck.Property (forAll, Property, (==>))
+import Test.QuickCheck (arbitrary, oneof, choose, Gen)
+
 import Data.List(intersperse)
 import Data.Char
-import Test.QuickCheck
+
+import System.Denominate
 
 main :: IO ()
 main = $(defaultMainGenerator)
