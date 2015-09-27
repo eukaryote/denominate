@@ -1,5 +1,4 @@
-
-all: build 
+all: build
 
 clean:
 	runhaskell Setup.hs clean

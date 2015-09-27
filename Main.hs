@@ -19,7 +19,7 @@ base [] = error "Main.base"
 base (d:_) =
   case d == "/" of
     True    -> d
-    False   -> if (head revD) /= '/' 
+    False   -> if (head revD) /= '/'
                   then d
                   else reverse $ tail revD
   where revD = reverse d
