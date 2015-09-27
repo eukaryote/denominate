@@ -1,18 +1,24 @@
 import System.Environment(getArgs, getProgName)
 import System.Exit(exitFailure)
 import Control.Monad(when)
-import System.Denominate
+import Denominate
 
 usage = getProgName >>= \name ->
-          return ("Usage: " ++ name ++ " base_directory") >>=
+          return ("Usage: " ++ name ++ " [-h|-n] base_directory\n" ++
+                  "  -h: show help\n" ++
+                  "  -n: dry run; show what would be renamed") >>=
           putStrLn >> exitFailure
+
 
 main = do
   getArgs >>= \args ->
     when (doUsageAndExit args) usage >>
-      (fileToTypedFilePath . base) args >>=
-         renameAll defaultFilenameConverter >>=
-            mapM_ handle
+      let forReal = not(elem "-n" args)
+          pathArgs = filter (\s -> not(elem s ["-n", "-h", "--help"])) args
+      in (fileToTypedFilePath . base) pathArgs >>=
+           renameAll forReal defaultFilenameConverter >>=
+              mapM_ handle
+
 
 -- Get base dir to recurse in and ensure there is no terminal '/'.
 base [] = error "Main.base"
@@ -30,5 +36,4 @@ handle result =
                                     putStr fName >> putStrLn "]"
     (Success  _         _  )  -> return ()
 
-doUsageAndExit args = null args || arg0 == "-h" || arg0 == "--help"
-  where arg0 = head args
+doUsageAndExit args = null args || elem "-h" args || elem "--help" args

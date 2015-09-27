@@ -1,50 +1,4 @@
-{- |
-Module      :  $Header$
-Description :  Supports bulk renaming of directories and files into a
-               standard, normalized format.
-Copyright   :  (c) Calvin Smith
-License     :  BSD3, see LICENSE.txt
-
-Maintainer  :  Calvin Smith <cs-haskell@protempore.net>
-Stability   :  Experimental
-Portability :  portable
-
-Functions to assist in renaming of directories and files into a
-standard, normalized format.
-
-This module defines several functions supporting renaming of files
-and directories, and is especially useful for doing a bulk renaming
-of all files and directories, recursively, in a given base directory.
-
-The primary functions of interest are 'rename' and 'renameAll', both
-of which accept a function for creating the new filename based on its
-current name. The user may supply a custom filename converter function,
-or may use the pre-defined function that this module defines.
-
-The standard pre-defined converter determines the new name for a file
-or directory using the following rules:
-
-  1. all letters are converted to lowercase;
-
-  2. all non-alphanumeric characters at the beginning of a file or
-     directory name are removed (with the exception of an initial '.');
-
-  3. all non-alphanumeric characters at the end of a directory name
-     or the end of a filename (before the extension) are removed;
-
-  4. all other blocks of one or more non-alphanumeric characters are
-     converted to a single hyphen.
-
-See the documentation of the exported functions for more information.
--}
-
-module System.Denominate (FileType(Directory, File),
-                   RenameResult(Success, Failure),
-                    TypedFilePath, FilenameConverter,
-                    normalizeFilename, allFilepaths,
-                    rename, renameAll,
-                    fileToTypedFilePath, defaultFilenameConverter)
-where
+module Internal where
 
 import System.Directory
 import System.FilePath
@@ -101,8 +55,8 @@ samePaths path1 path2 = norm path1 == norm path2
 -- In all cases where a file is renamed, the extension of a file will be
 -- automatically converted to lowercase but otherwise remains the
 -- same (no characters are ever removed from the extension).
-rename :: FilenameConverter -> TypedFilePath -> IO (RenameResult)
-rename convFunc f@(_, oldPath) =
+rename :: Bool -> FilenameConverter -> TypedFilePath -> IO (RenameResult)
+rename forReal convFunc f@(_, oldPath) =
   let
       newPath     =  normalizeFilename convFunc f
       fail f msg  =  return (Failure f msg)
@@ -112,22 +66,24 @@ rename convFunc f@(_, oldPath) =
         _    -> do exists <- fileExists newPath
                    if exists
                       then fail f "WARN: File already exists with new name."
-                      else doRenameSafe f newPath
+                      else doRenameSafe forReal f newPath
 
 -- |Renames the old file or directory to the new path, returning
 -- a result that indicates success or failure. If successful,
 -- the name of the new file is the success message; if unsuccessful,
 -- the failure message gives more information.
-doRenameSafe :: TypedFilePath -> FilePath -> IO RenameResult
-doRenameSafe f newPath =
+doRenameSafe :: Bool -> TypedFilePath -> FilePath -> IO RenameResult
+doRenameSafe forReal f newPath =
   handle ((\exc -> return (Failure f ("ERROR: " ++ show exc))) :: SomeException -> IO RenameResult)
          (doRename f newPath >> (return (Success f newPath)))
   where
     doRename :: TypedFilePath -> FilePath -> IO()
     doRename (fileType, oldPath) newPath =
-      case fileType of
-        Directory -> renameDirectory oldPath newPath
-        File      -> renameFile      oldPath newPath
+      if forReal
+        then case fileType of
+               Directory -> renameDirectory oldPath newPath
+               File      -> renameFile oldPath newPath
+        else putStrLn ("Would rename: " ++ (normalizePath oldPath) ++ " -> " ++ newPath) >> return ()
 
 -- |Rename all files and directories, recursively, in the given directory,
 -- using the supplied filename converter to determine the new name of each
@@ -139,8 +95,10 @@ doRenameSafe f newPath =
 -- lower case, but is not otherwise changed. There will be one RenameResult
 -- for each success or failure, and an indication of the reason for failure
 -- for failures, or the new name in case of success.
-renameAll :: FilenameConverter -> TypedFilePath -> IO ([RenameResult])
-renameAll fn baseDir = (allFilepaths . snd) baseDir >>= mapM (rename fn)
+-- The `Bool` argument indicates whether to rename the files (true) or only
+-- show what would be renamed (false).
+renameAll :: Bool -> FilenameConverter -> TypedFilePath -> IO ([RenameResult])
+renameAll forReal fn baseDir = (allFilepaths . snd) baseDir >>= mapM (rename forReal fn)
 
 -- |Determine if the filename does not represent a dot file ("." or "..").
 isNotDotFile :: FilePath -> Bool
@@ -197,10 +155,13 @@ isDirectoryFileType _         = False
 -- exists.
 fileToTypedFilePath :: FilePath -> IO TypedFilePath
 fileToTypedFilePath filepath =
-  doesDirectoryExist filepath >>= \b ->
-    case b of
-      True   ->  return (Directory, filepath)
-      False  ->  return (File, filepath)
+  if isValid normPath
+    then doesDirectoryExist filepath >>= \b ->
+           case b of
+             True   ->  return (Directory, normPath)
+             False  ->  return (File, normPath)
+    else ioError (userError $ "Invalid path: " ++ filepath)
+  where normPath = dropTrailingPathSeparator filepath
 
 -- |Sort the paths in a given directory by putting all directories first
 -- and then sorting by path within each type. It is designed for sorting
@@ -289,14 +250,20 @@ joinFileName dirpath filename = joinPath [dirpath, filename]
 joinFileExt :: String -> String -> String
 joinFileExt filename ext = addExtension filename ext
 
--- |Split path into directory part (without slash) and file part.
+-- |Split path into directory part and file part.
+-- The directory part will not have an initial "./" or a trailing "/".
 dirAndFile :: FilePath -> (String, String)
-dirAndFile path = splitFileName path
+dirAndFile path = (normalizePath dirPath, fileName)
+  where (dirPath, fileName) = splitFileName path
 
--- |Split file path into filename and ext. If
+-- |Split file path into filename and ext.
 fileAndExt :: FilePath -> (String, String)
 fileAndExt filename =
   case splitExtension filename of
     ([],   ext) -> (ext, [])
     (file, ext) -> (file, ext)
 
+
+normalizePath :: FilePath -> FilePath
+normalizePath path = dropTrailingPathSeparator shortPath
+  where shortPath = if take 2 path == "./" then drop 2 path else path

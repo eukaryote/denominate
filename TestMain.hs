@@ -1,18 +1,23 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Main where
 
-import Test.Framework.TH
+
+import Test.HUnit
+import Test.Framework
+import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck2
+import Test.Framework.TH
 
 import Test.QuickCheck.Arbitrary (Arbitrary)
 import Test.QuickCheck.Property (forAll, Property, (==>))
 import Test.QuickCheck (arbitrary, oneof, choose, Gen)
-import Test.HUnit
 
-import Data.List(intersperse)
+import System.FilePath(isValid, hasTrailingPathSeparator,
+                       dropTrailingPathSeparator)
+import Data.List(intersperse, isInfixOf)
 import Data.Char
 
-import System.Denominate
+import Internal
 
 main :: IO ()
 main = $(defaultMainGenerator)
@@ -22,9 +27,9 @@ instance Arbitrary FileType where
 
 randPathGen :: Gen [Char]
 randPathGen =
-    do numSegments <- choose (0 :: Int, 8 :: Int)
-       words <- mapM (\_ -> choose (0 :: Int, 10 :: Int) >>= randWordGen) [0..numSegments]
-       return $ concat $ intersperse "/" words
+  do numSegments <- choose (0 :: Int, 8 :: Int)
+     words <- mapM (\_ -> choose (0 :: Int, 10 :: Int) >>= randWordGen) [0..numSegments]
+     return $ concat $ intersperse "/" words
 
 randWordGen :: Int -> Gen [Char]
 randWordGen len = mapM (\_ -> randCharGen) [0..len]
@@ -112,7 +117,9 @@ prop_changesOnlyLastPart :: FileType -> Property
 prop_changesOnlyLastPart ftype =
   forAll randPathGen f
   where
-    f p = take 2 p /= "./" ==> test p
+    f p = take 2 p /= "./"
+           && not (isInfixOf "//" p)
+           && not (hasTrailingPathSeparator p) ==> test p
     test path = take n path == take n result
       where n = lastSlashOf path + 1
             result = convert (ftype, path)
@@ -237,9 +244,20 @@ prop_trailingDirGarbageIsRemoved =
 
 
 
-test1 = TestCase (assertEqual "for (foo 3)," (1,2) (foo 3))
+test_dirAndFile_currentDir = [
+  testCase "test_dirAndFile_currentDir with './'"
+           (assertEqual "for dirAndFile \"./test\","
+                         ("", "test")
+                         $ dirAndFile "./test"),
+  testCase "test_dirAndFile_currentDir without './'"
+           (assertEqual "for dirAndFile \"test\","
+                         ("", "test")
+                         $ dirAndFile "test")
+  ]
 
-test_dirAndFile_currentDir =
-  TestCase (assertEqual "for dirAndFile \"./test\","
-                        ("", "test")
-                         dirAndFile "./test")
+test_dirAndFile_absolutePath = [
+  testCase "test_dirAndFile_absolutePath"
+           (assertEqual "for dirAndFile \"/foo/bar/baz.txt\""
+                        ("/foo/bar", "baz.txt")
+                        $ dirAndFile "/foo/bar/baz.txt")
+  ]
