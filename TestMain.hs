@@ -12,8 +12,7 @@ import Test.QuickCheck.Arbitrary (Arbitrary)
 import Test.QuickCheck.Property (forAll, Property, (==>))
 import Test.QuickCheck (arbitrary, oneof, choose, Gen)
 
-import System.FilePath(isValid, hasTrailingPathSeparator,
-                       dropTrailingPathSeparator)
+import System.FilePath(hasTrailingPathSeparator)
 import Data.List(intersperse, isInfixOf)
 import Data.Char
 
