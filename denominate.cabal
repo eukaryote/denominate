@@ -1,5 +1,5 @@
 name:               denominate
-version:            0.5.1
+version:            0.6.0
 synopsis:           Functions supporting bulk file and directory name
                     normalization.
 description:        Denominate is a simple program and an associated library
@@ -21,7 +21,6 @@ build-type:         Simple
 cabal-version:      >= 1.2
 tested-with:        GHC==6.8.2 GHC==6.10.1 GHC==7.6.3
 extra-source-files: TestMain.hs Makefile
-extra-tmp-files:    hugsin
 
 library
   exposed-modules: System.Denominate
