@@ -1,23 +1,23 @@
 all: build
 
 clean:
-	runhaskell Setup.hs clean
+	cabal clean
 
 configure: Setup.hs denominate.cabal *.hs
-	runhaskell Setup.hs configure --user --prefix=${HOME}
+	cabal configure --user --prefix=${HOME}
 
 build: configure
-	runhaskell Setup.hs build
+	cabal build
 
 install:  configure build
-	runhaskell Setup.hs install
+	cabal install
 
 configure-tests: Setup.hs denominate.cabal *.hs
-	runhaskell Setup.hs configure --user --prefix=${HOME} --enable-tests
+	cabal configure --user --prefix=${HOME} --enable-tests
 
 build-tests: configure-tests
-	runhaskell Setup.hs build
+	cabal build
 
 test: build-tests
-	runhaskell Setup.hs test  --test-options='--maximum-unsuitable-generated-tests 10000 --maximum-generated-tests 1000'
+	cabal test  --test-options='--maximum-unsuitable-generated-tests 10000 --maximum-generated-tests 1000'
 
