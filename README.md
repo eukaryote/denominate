@@ -92,7 +92,7 @@ Note the following:
 
 #History
 
- * Sep. 27, 2015: version 0.5.1; moved to github and updated homepage; verified tests against GHC 7.6.3
+ * Sep. 27, 2015: version 0.6.0; moved to github and updated homepage; simplify cabal file (drop support for ghc <6.8); use test-framework for tests, and other minor updates
  * Dec. 07, 2008: version 0.5.0; updates required to compile with GHC 6.10 and still work with 6.6 and 6.8 (requires ghc-pkg installed for running tests).
  * Aug. 15, 2008: version 0.4.2; updated tests to use QuickCheck2 (no longer works with QuickCheck1), added README.txt
  * Nov. 07, 2007: version 0.4.1; changed exposed module from Denominate to System.Denominate (uploaded to hackage)

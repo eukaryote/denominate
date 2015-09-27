@@ -1,9 +1,18 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Main where
+
+import Test.Framework.TH
+import Test.Framework.Providers.QuickCheck2
+import Test.QuickCheck.Arbitrary (Arbitrary)
+import Test.QuickCheck.Property
 
 import System.Denominate
 import Data.List(intersperse)
 import Data.Char
 import Test.QuickCheck
+
+main :: IO ()
+main = $(defaultMainGenerator)
 
 instance Arbitrary FileType where
   arbitrary = oneof $ map return [Directory, File]
@@ -98,8 +107,9 @@ ext fname =
 -- the last slash) should ever change.
 prop_changesOnlyLastPart :: FileType -> Property
 prop_changesOnlyLastPart ftype =
-  forAll randPathGen test
+  forAll randPathGen f
   where
+    f p = take 2 p /= "./" ==> test p
     test path = take n path == take n result
       where n = lastSlashOf path + 1
             result = convert (ftype, path)

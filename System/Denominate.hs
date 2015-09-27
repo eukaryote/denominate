@@ -227,9 +227,10 @@ normalizeFilename fn (fileType, origPath) =
                                      then (filenameWithExt, "")
                                      else fileAndExt filenameWithExt
       newFilenameNoExt = fn (fileType, filenameNoExt)
-      result =  joinFileName dir $ joinFileExt (if null newFilenameNoExt
-                                                  then filenameNoExt
-                                                  else newFilenameNoExt) (map toLower ext)
+      result =  joinFileName (if dir == "./" then "" else dir) $
+                    joinFileExt (if null newFilenameNoExt
+                                 then filenameNoExt
+                                 else newFilenameNoExt) (map toLower ext)
   in if null result then origPath else result
 
 -- |The default filename converter, which normalizes a filename by
