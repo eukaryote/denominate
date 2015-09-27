@@ -17,7 +17,7 @@ import System.FilePath(isValid, hasTrailingPathSeparator,
 import Data.List(intersperse, isInfixOf)
 import Data.Char
 
-import Internal
+import Denominate.Internal
 
 main :: IO ()
 main = $(defaultMainGenerator)

@@ -1,4 +1,4 @@
-module Internal where
+module Denominate.Internal where
 
 import System.Directory
 import System.FilePath

@@ -44,4 +44,4 @@ module Denominate (FileType(Directory, File),
                    normalizeFilename, allFilepaths, rename, renameAll,
                    fileToTypedFilePath, defaultFilenameConverter)
 where
-import Internal
+import Denominate.Internal
