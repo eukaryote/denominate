@@ -1,5 +1,5 @@
 name:               denominate
-version:            0.5.0
+version:            0.5.1
 synopsis:           Functions supporting bulk file and directory name
                     normalization.
 description:        Denominate is a simple program and an associated library
@@ -16,10 +16,10 @@ copyright:          (c) Calvin Smith
 author:             Calvin Smith
 maintainer:         cs-haskell@protempore.net
 stability:          Experimental
-homepage:           http://protempore.net/denominate/
+homepage:           https://github.com/eukaryote/denominate
 build-type:         Simple
 cabal-version:      >= 1.2
-tested-with:        GHC==6.6.1 GHC==6.8.2 GHC==6.10.1
+tested-with:        GHC==6.6.1 GHC==6.8.2 GHC==6.10.1 GHC==7.6.3
 extra-source-files: TestRunner.hs Makefile
 extra-tmp-files:    hugsin
 
