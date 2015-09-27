@@ -85,6 +85,12 @@ type TypedFilePath = (FileType, FilePath)
 -- if a file.
 type FilenameConverter = TypedFilePath -> FilePath
 
+-- |Answer whether the two paths are the same, ignoring the presence of "./"
+-- at the beginning of a path.
+samePaths:: FilePath -> FilePath -> Bool
+samePaths path1 path2 = norm path1 == norm path2
+  where norm path = if take 2 path == "./" then drop 2 path else path
+
 -- |Rename a single file or directory using the supplied filename converter,
 -- which will be passed just the directory name (without any parent
 -- directories or a terminal slash) in the case of a directory or just
@@ -101,7 +107,7 @@ rename convFunc f@(_, oldPath) =
       newPath     =  normalizeFilename convFunc f
       fail f msg  =  return (Failure f msg)
   in
-      case (oldPath == newPath) of
+      case samePaths oldPath newPath of
         True -> return (Success f oldPath)
         _    -> do exists <- fileExists newPath
                    if exists
