@@ -1,3 +1,9 @@
+#Warning
+
+I'm in the process of freshening this up after 7 years of bitrot, so I don't
+recommend using it at the moment until I've added some more unit tests
+and removed this warning.
+
 #Description
 
 Denominate is a simple program and an associated library supporting bulk file and directory name normalization. If you’ve ever spent a long time changing filenames to get rid of whitespace or convert periods and underscores to hyphens, you know why it exists.
@@ -92,7 +98,7 @@ Note the following:
 
 #History
 
- * Sep. 27, 2015: version 0.6.0; moved to github and updated homepage; simplify cabal file (drop support for ghc <6.8); use test-framework for tests, and other minor updates
+ * Sep. 27, 2015: version 0.6.0; moved to github and updated homepage; simplify cabal file (drop support for ghc <6.8); use test-framework for tests; add '-n' (dry run) option; use 'Denominate' and 'Denominate.Internal' modules rather than previous 'System.Denominate'; other minor updates
  * Dec. 07, 2008: version 0.5.0; updates required to compile with GHC 6.10 and still work with 6.6 and 6.8 (requires ghc-pkg installed for running tests).
  * Aug. 15, 2008: version 0.4.2; updated tests to use QuickCheck2 (no longer works with QuickCheck1), added README.txt
  * Nov. 07, 2007: version 0.4.1; changed exposed module from Denominate to System.Denominate (uploaded to hackage)
