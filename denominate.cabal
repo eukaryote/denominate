@@ -24,13 +24,19 @@ extra-source-files: TestMain.hs Makefile
 
 library
   exposed-modules: Denominate, Denominate.Internal
-  build-depends:  base >= 3.0 && < 5.0, directory, filepath
-  ghc-options:      -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
+  build-depends:
+    base >= 3.0 && < 5.0,
+    directory,
+    filepath
+  ghc-options: -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
 
 executable denominate
-  main-is:          Main.hs
-  build-depends:  base >= 3.0 && < 5.0, directory, filepath
-  ghc-options:      -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
+  main-is: Main.hs
+  build-depends:
+    base >= 3.0 && < 5.0,
+    directory,
+    filepath
+  ghc-options: -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
 
 test-suite denominate_test
   type: exitcode-stdio-1.0
@@ -45,3 +51,4 @@ test-suite denominate_test
     test-framework-th,
     HUnit,
     QuickCheck
+  ghc-options: -Wall -fno-warn-name-shadowing -fno-warn-missing-signatures -fno-warn-orphans
