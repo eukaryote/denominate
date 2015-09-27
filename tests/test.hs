@@ -35,7 +35,7 @@ randCharGen :: Gen Char
 randCharGen = oneof $ map return chars
  where chars = letters ++ map toUpper letters ++ punc
        letters = "abcdefghijklmnopqrstuvwxyz"
-       punc    = "..............................-----_____,?`~!@#$%^&*()=+[]{}|'\"<>?/"
+       punc    = "..............................-----_____,?`~!@#$%^&*()=+[]{}|'\"<>?"
 
 lastSlashOf :: String -> Int
 lastSlashOf = lastIndexOf '/'

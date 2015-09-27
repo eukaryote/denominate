@@ -19,5 +19,5 @@ build-tests: configure-tests
 	cabal build
 
 test: build-tests
-	cabal test  --test-options='--maximum-unsuitable-generated-tests 10000 --maximum-generated-tests 1000'
+	cabal test  --test-options='--quickcheck-tests 1000'
 
